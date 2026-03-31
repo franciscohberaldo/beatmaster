@@ -50,7 +50,7 @@ export function Library() {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        setUploadError("Login necessário para fazer upload.");
+        setUploadError("LOGIN_REQUIRED");
         setUploading(false);
         return;
       }
@@ -194,12 +194,16 @@ export function Library() {
           </div>
 
           {uploadError && (
-            <p className="mx-2 text-[10px] font-mono text-rose-400 bg-rose-500/10 rounded px-2 py-1.5">
-              {uploadError}
-              {uploadError.includes("Login") && (
-                <a href="/auth/login" className="ml-1 underline">→ entrar</a>
+            <div className="mx-2 text-[10px] font-mono bg-rose-500/10 border border-rose-500/20 rounded px-2 py-1.5">
+              {uploadError === "LOGIN_REQUIRED" ? (
+                <span className="text-rose-300">
+                  Login necessário.{" "}
+                  <a href="/auth/login" className="underline font-semibold text-rose-200 hover:text-white">→ Entrar</a>
+                </span>
+              ) : (
+                <span className="text-rose-400">{uploadError}</span>
               )}
-            </p>
+            </div>
           )}
 
           {/* Selected pad indicator */}

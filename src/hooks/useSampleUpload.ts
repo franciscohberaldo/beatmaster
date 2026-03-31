@@ -21,7 +21,7 @@ export function useSampleUpload() {
     setProgress(0);
 
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) throw new Error("Not authenticated");
+    if (!user) { setUploading(false); throw new Error("LOGIN_REQUIRED"); }
 
     const ext = file.name.split(".").pop();
     const fileName = `${crypto.randomUUID()}.${ext}`;
