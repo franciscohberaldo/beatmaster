@@ -30,8 +30,17 @@ export function PadInspector() {
 
   if (!pad || selectedPadId === null) {
     return (
-      <div className="p-4 text-white/30 text-sm font-mono text-center">
-        Select a pad
+      <div className="flex flex-col items-center justify-center h-full gap-2 p-4">
+        <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" strokeWidth="1" className="text-white/15">
+          <line x1="3" y1="6" x2="19" y2="6"/>
+          <line x1="3" y1="11" x2="13" y2="11"/>
+          <line x1="3" y1="16" x2="10" y2="16"/>
+          <rect x="14" y="12" width="6" height="6" rx="1" strokeWidth="1.2"/>
+          <path d="M16 15h2M17 14v2"/>
+        </svg>
+        <span className="text-[10px] font-mono text-white/20 text-center leading-relaxed">
+          Select a pad<br/>to edit
+        </span>
       </div>
     );
   }

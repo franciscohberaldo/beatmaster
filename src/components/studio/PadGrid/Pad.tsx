@@ -6,15 +6,26 @@ import { usePadTrigger } from "@/hooks/usePadTrigger";
 import { cn } from "@/lib/utils";
 import type { PadId } from "@/types";
 
-const COLOR_MAP: Record<string, string> = {
-  amber:   "bg-amber-500/20   border-amber-500/40   data-[active=true]:bg-amber-500/70   data-[selected=true]:border-amber-400",
-  cyan:    "bg-cyan-500/20    border-cyan-500/40    data-[active=true]:bg-cyan-500/70    data-[selected=true]:border-cyan-400",
-  violet:  "bg-violet-500/20  border-violet-500/40  data-[active=true]:bg-violet-500/70  data-[selected=true]:border-violet-400",
-  emerald: "bg-emerald-500/20 border-emerald-500/40 data-[active=true]:bg-emerald-500/70 data-[selected=true]:border-emerald-400",
-  rose:    "bg-rose-500/20    border-rose-500/40    data-[active=true]:bg-rose-500/70    data-[selected=true]:border-rose-400",
-  sky:     "bg-sky-500/20     border-sky-500/40     data-[active=true]:bg-sky-500/70     data-[selected=true]:border-sky-400",
-  orange:  "bg-orange-500/20  border-orange-500/40  data-[active=true]:bg-orange-500/70  data-[selected=true]:border-orange-400",
-  lime:    "bg-lime-500/20    border-lime-500/40    data-[active=true]:bg-lime-500/70    data-[selected=true]:border-lime-400",
+const CIRCLE_COLOR: Record<string, string> = {
+  amber:   "bg-amber-400",
+  cyan:    "bg-cyan-400",
+  violet:  "bg-violet-500",
+  emerald: "bg-emerald-500",
+  rose:    "bg-rose-500",
+  sky:     "bg-sky-400",
+  orange:  "bg-orange-500",
+  lime:    "bg-lime-400",
+};
+
+const ACTIVE_SHADOW: Record<string, string> = {
+  amber:   "shadow-amber-500/70",
+  cyan:    "shadow-cyan-500/70",
+  violet:  "shadow-violet-500/70",
+  emerald: "shadow-emerald-500/70",
+  rose:    "shadow-rose-500/70",
+  sky:     "shadow-sky-500/70",
+  orange:  "shadow-orange-500/70",
+  lime:    "shadow-lime-500/70",
 };
 
 interface PadProps {
@@ -50,57 +61,55 @@ export function Pad({ padId, onContextMenu }: PadProps) {
 
   if (!pad) return null;
 
-  const colorClass = COLOR_MAP[pad.color] ?? COLOR_MAP.amber;
+  const circleColor = CIRCLE_COLOR[pad.color] ?? CIRCLE_COLOR.amber;
+  const shadowColor = ACTIVE_SHADOW[pad.color] ?? ACTIVE_SHADOW.amber;
 
   return (
     <button
       onClick={handleClick}
       onContextMenu={handleContextMenu}
       onDoubleClick={handleDoubleClick}
-      data-active={isActive}
-      data-selected={isSelected}
-      className={cn(
-        "relative flex flex-col items-start justify-end p-2 rounded-lg border-2",
-        "transition-all duration-75 select-none cursor-pointer",
-        "hover:brightness-125 active:scale-95",
-        colorClass,
-        pad.isMuted && "opacity-40",
-      )}
       style={{ aspectRatio: "1" }}
-      title={`${pad.name}${pad.sampleName ? ` — ${pad.sampleName}` : ""}\nDouble-click to load sample`}
+      title={`${pad.name}${pad.sampleName ? ` — ${pad.sampleName}` : ""}\nDouble-click: load sample`}
+      className={cn(
+        "relative flex flex-col items-center justify-between py-2 px-1 rounded-lg",
+        "transition-all duration-75 select-none cursor-pointer",
+        "border",
+        isSelected
+          ? "bg-surface-3 border-white/25"
+          : "bg-surface-2 border-white/[0.06] hover:border-white/15 hover:bg-surface-3",
+        isActive && "brightness-130",
+        pad.isMuted && "opacity-35",
+      )}
     >
-      {/* Solo indicator */}
+      {/* Colored circle */}
+      <div
+        className={cn(
+          "rounded-full transition-all duration-75",
+          circleColor,
+          isActive ? cn("w-4 h-4 shadow-lg", shadowColor) : "w-3.5 h-3.5",
+        )}
+      />
+
+      {/* Pad name */}
+      <span className="text-[9px] font-mono font-medium text-white/55 leading-none truncate w-full text-center">
+        {pad.name}
+      </span>
+
+      {/* Pad number */}
+      <span className="text-[8px] font-mono text-white/20 leading-none">
+        {padId + 1}
+      </span>
+
+      {/* Solo badge */}
       {pad.isSolo && (
-        <span className="absolute top-1 right-1 text-[9px] font-bold text-yellow-300 bg-yellow-900/60 rounded px-1">
-          S
-        </span>
+        <span className="absolute top-0.5 right-0.5 text-[7px] font-bold text-yellow-300 leading-none">S</span>
       )}
 
       {/* Loading spinner */}
       {pad.isLoading && (
         <span className="absolute inset-0 flex items-center justify-center">
-          <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-        </span>
-      )}
-
-      {/* No sample indicator */}
-      {!pad.sampleUrl && !pad.isLoading && (
-        <span className="absolute inset-0 flex items-center justify-center opacity-20">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-            <path d="M8 1.5a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5a.5.5 0 0 1 .5-.5z"/>
-          </svg>
-        </span>
-      )}
-
-      {/* Pad name */}
-      <span className="text-[10px] font-mono font-semibold text-white/70 leading-tight truncate w-full">
-        {pad.name}
-      </span>
-
-      {/* Sample name */}
-      {pad.sampleName && (
-        <span className="text-[9px] font-mono text-white/40 leading-tight truncate w-full">
-          {pad.sampleName}
+          <span className="w-3 h-3 border border-white/30 border-t-white rounded-full animate-spin" />
         </span>
       )}
     </button>
