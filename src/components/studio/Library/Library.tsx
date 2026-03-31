@@ -14,6 +14,7 @@ export function Library() {
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
   const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
   const [previewId, setPreviewId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -44,24 +45,33 @@ export function Library() {
   const uploadFile = useCallback(async (file: File) => {
     if (!supabase) return;
     if (!file.type.startsWith("audio/") && !file.name.match(/\.(wav|mp3|ogg|flac|aif|aiff)$/i)) return;
-
+    setUploadError(null);
     setUploading(true);
-    const { data: { user } } = await supabase.auth.getUser();
-    const userId = user?.id ?? "anonymous";
-    const ext = file.name.split(".").pop();
-    const path = `${userId}/${crypto.randomUUID()}.${ext}`;
-
-    await supabase.storage.from("samples").upload(path, file, { contentType: file.type });
-    await supabase.from("samples").insert({
-      user_id: userId,
-      name: file.name.replace(/\.[^.]+$/, ""),
-      storage_path: path,
-      file_size: file.size,
-      mime_type: file.type || "audio/wav",
-    });
-
-    setUploading(false);
-    await loadSamples();
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        setUploadError("Login necessário para fazer upload.");
+        setUploading(false);
+        return;
+      }
+      const ext = file.name.split(".").pop();
+      const path = `${user.id}/${crypto.randomUUID()}.${ext}`;
+      const { error: storageErr } = await supabase.storage.from("samples").upload(path, file, { contentType: file.type });
+      if (storageErr) throw storageErr;
+      const { error: dbErr } = await supabase.from("samples").insert({
+        user_id: user.id,
+        name: file.name.replace(/\.[^.]+$/, ""),
+        storage_path: path,
+        file_size: file.size,
+        mime_type: file.type || "audio/wav",
+      });
+      if (dbErr) throw dbErr;
+      await loadSamples();
+    } catch (err) {
+      setUploadError(err instanceof Error ? err.message : "Erro no upload");
+    } finally {
+      setUploading(false);
+    }
   }, [supabase, loadSamples]);
 
   const handleFiles = useCallback((files: FileList | null) => {
@@ -182,6 +192,15 @@ export function Library() {
               disabled={!isSupabaseConfigured || uploading}
             />
           </div>
+
+          {uploadError && (
+            <p className="mx-2 text-[10px] font-mono text-rose-400 bg-rose-500/10 rounded px-2 py-1.5">
+              {uploadError}
+              {uploadError.includes("Login") && (
+                <a href="/auth/login" className="ml-1 underline">→ entrar</a>
+              )}
+            </p>
+          )}
 
           {/* Selected pad indicator */}
           {selectedPadId !== null && (

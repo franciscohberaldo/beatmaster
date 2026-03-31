@@ -19,6 +19,7 @@ export function SampleBrowser() {
   const { upload, uploading, progress } = useSampleUpload();
   const [samples, setSamples] = useState<DbSample[]>([]);
   const [loading, setLoading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const supabase = createClient();
 
   const loadSamples = useCallback(async () => {
@@ -39,9 +40,14 @@ export function SampleBrowser() {
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || targetPad === null) return;
-    const result = await upload(file, targetPad as PadId);
-    await assignSample(result.url, result.name);
-    await loadSamples();
+    setUploadError(null);
+    try {
+      const result = await upload(file, targetPad as PadId);
+      await assignSample(result.url, result.name);
+      await loadSamples();
+    } catch (err) {
+      setUploadError(err instanceof Error ? err.message : "Erro no upload");
+    }
   };
 
   const assignSample = async (url: string, name: string) => {
@@ -105,6 +111,14 @@ export function SampleBrowser() {
                 disabled={uploading}
               />
             </label>
+            {uploadError && (
+              <p className="mt-2 text-xs font-mono text-rose-400 bg-rose-500/10 rounded px-3 py-2">
+                {uploadError}
+                {uploadError.includes("autenticad") && (
+                  <a href="/auth/login" className="ml-2 underline text-rose-300 hover:text-rose-200">→ Login</a>
+                )}
+              </p>
+            )}
           </div>
 
           {/* Existing samples */}
