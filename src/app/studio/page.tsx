@@ -1,6 +1,9 @@
-import { StudioClient } from "@/components/studio/StudioClient";
+import dynamic from "next/dynamic";
 
-export const dynamic = "force-dynamic";
+const StudioClient = dynamic(
+  () => import("@/components/studio/StudioClient").then((m) => ({ default: m.StudioClient })),
+  { ssr: false }
+);
 
 export default function StudioPage() {
   return <StudioClient />;
