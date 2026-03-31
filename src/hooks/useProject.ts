@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback } from "react";
-import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
+import { createClient } from "@/lib/supabase/client";
 import { useProjectStore } from "@/store";
 import type { DbProject, Project, ProjectSummary } from "@/types";
 import { createDefaultPads, createDefaultPatterns } from "@/lib/constants";
@@ -21,7 +21,7 @@ function dbToProject(row: DbProject): Project {
 
 export function useProject() {
   const { currentProject, markSaving, markSaved, loadProject } = useProjectStore();
-  const supabase = isSupabaseConfigured ? createClient() : null;
+  const supabase = createClient();
 
   const listProjects = useCallback(async (): Promise<ProjectSummary[]> => {
     if (!supabase) throw new Error("Supabase not configured");

@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useUIStore, useProjectStore } from "@/store";
 import { useSampleUpload } from "@/hooks/useSampleUpload";
 import AudioEngine from "@/engine/AudioEngine";
-import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
+import { createClient } from "@/lib/supabase/client";
 import type { DbSample, PadId } from "@/types";
 
 export function SampleBrowser() {
@@ -19,7 +19,7 @@ export function SampleBrowser() {
   const { upload, uploading, progress } = useSampleUpload();
   const [samples, setSamples] = useState<DbSample[]>([]);
   const [loading, setLoading] = useState(false);
-  const supabase = isSupabaseConfigured ? createClient() : null;
+  const supabase = createClient();
 
   const loadSamples = useCallback(async () => {
     if (!supabase) { setSamples([]); setLoading(false); return; }

@@ -19,6 +19,7 @@ export function LoginClient() {
 
     try {
       const supabase = createClient();
+      if (!supabase) { setError("Supabase não configurado."); setLoading(false); return; }
       if (mode === "login") {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;

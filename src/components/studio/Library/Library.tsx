@@ -24,7 +24,7 @@ export function Library() {
     selectedPadId !== null ? s.currentProject?.pads[selectedPadId] : null
   );
 
-  const supabase = isSupabaseConfigured ? createClient() : null;
+  const supabase = createClient();
 
   const loadSamples = useCallback(async () => {
     if (!supabase) return;

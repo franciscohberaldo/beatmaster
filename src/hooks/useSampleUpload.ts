@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
+import { createClient } from "@/lib/supabase/client";
 import type { PadId } from "@/types";
 
 interface UploadResult {
@@ -13,7 +13,7 @@ interface UploadResult {
 export function useSampleUpload() {
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
-  const supabase = isSupabaseConfigured ? createClient() : null;
+  const supabase = createClient();
 
   const upload = useCallback(async (file: File, padId: PadId): Promise<UploadResult> => {
     if (!supabase) throw new Error("Supabase not configured. Add credentials to .env.local");
