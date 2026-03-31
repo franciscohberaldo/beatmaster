@@ -20,13 +20,7 @@ export function SampleBrowser() {
   const [samples, setSamples] = useState<DbSample[]>([]);
   const [loading, setLoading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
   const supabase = createClient();
-
-  useEffect(() => {
-    if (!supabase) { setIsLoggedIn(false); return; }
-    supabase.auth.getUser().then(({ data }) => setIsLoggedIn(!!data.user));
-  }, [supabase]);
 
   const loadSamples = useCallback(async () => {
     if (!supabase) { setSamples([]); setLoading(false); return; }
@@ -101,46 +95,25 @@ export function SampleBrowser() {
             <label className="text-[10px] font-mono text-white/40 uppercase tracking-wider block mb-2">
               Upload New Sample
             </label>
-            {isLoggedIn === false ? (
-              <div className="px-4 py-3 bg-surface-2 border border-white/10 rounded-lg text-center">
-                <p className="text-sm font-mono text-white/40 mb-2">Login necessário para fazer upload</p>
-                <a
-                  href="/auth/login"
-                  className="inline-block px-4 py-1.5 rounded-md text-xs font-mono font-semibold
-                    bg-emerald-600/20 border border-emerald-500/40 text-emerald-300
-                    hover:bg-emerald-600/40 transition-all"
-                >
-                  → Entrar / Criar conta
-                </a>
-              </div>
-            ) : (
-              <label className="flex items-center gap-3 px-4 py-3 bg-surface-2 border-2 border-dashed border-white/20 rounded-lg cursor-pointer hover:border-white/40 transition-colors">
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" className="text-white/40">
-                  <path d="M10 3a1 1 0 0 1 .707.293l3 3a1 1 0 0 1-1.414 1.414L11 6.414V13a1 1 0 1 1-2 0V6.414L7.707 7.707A1 1 0 0 1 6.293 6.293l3-3A1 1 0 0 1 10 3z"/>
-                  <path d="M3 14a1 1 0 0 1 1 1v1h12v-1a1 1 0 1 1 2 0v1a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-1a1 1 0 0 1 1-1z"/>
-                </svg>
-                <span className="text-sm font-mono text-white/60">
-                  {uploading ? `Uploading… ${progress}%` : "Choose .wav / .mp3 file"}
-                </span>
-                <input
-                  type="file"
-                  accept="audio/wav,audio/mpeg,audio/ogg,audio/flac,audio/aiff,.wav,.mp3,.ogg,.flac,.aif"
-                  className="hidden"
-                  onChange={handleFileChange}
-                  disabled={uploading}
-                />
-              </label>
-            )}
+            <label className="flex items-center gap-3 px-4 py-3 bg-surface-2 border-2 border-dashed border-white/20 rounded-lg cursor-pointer hover:border-white/40 transition-colors">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" className="text-white/40">
+                <path d="M10 3a1 1 0 0 1 .707.293l3 3a1 1 0 0 1-1.414 1.414L11 6.414V13a1 1 0 1 1-2 0V6.414L7.707 7.707A1 1 0 0 1 6.293 6.293l3-3A1 1 0 0 1 10 3z"/>
+                <path d="M3 14a1 1 0 0 1 1 1v1h12v-1a1 1 0 1 1 2 0v1a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-1a1 1 0 0 1 1-1z"/>
+              </svg>
+              <span className="text-sm font-mono text-white/60">
+                {uploading ? `Uploading… ${progress}%` : "Choose .wav / .mp3 file"}
+              </span>
+              <input
+                type="file"
+                accept="audio/wav,audio/mpeg,audio/ogg,audio/flac,audio/aiff,.wav,.mp3,.ogg,.flac,.aif"
+                className="hidden"
+                onChange={handleFileChange}
+                disabled={uploading}
+              />
+            </label>
             {uploadError && (
               <div className="mt-2 text-xs font-mono bg-rose-500/10 border border-rose-500/20 rounded px-3 py-2">
-                {uploadError === "LOGIN_REQUIRED" ? (
-                  <span className="text-rose-300">
-                    Faça login para fazer upload.{" "}
-                    <a href="/auth/login" className="underline text-rose-200 hover:text-white font-semibold">→ Entrar</a>
-                  </span>
-                ) : (
-                  <span className="text-rose-400">{uploadError}</span>
-                )}
+                <span className="text-rose-400">{uploadError}</span>
               </div>
             )}
           </div>

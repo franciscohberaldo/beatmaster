@@ -49,17 +49,13 @@ export function Library() {
     setUploading(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        setUploadError("LOGIN_REQUIRED");
-        setUploading(false);
-        return;
-      }
+      const userId = user?.id ?? "anonymous";
       const ext = file.name.split(".").pop();
-      const path = `${user.id}/${crypto.randomUUID()}.${ext}`;
+      const path = `${userId}/${crypto.randomUUID()}.${ext}`;
       const { error: storageErr } = await supabase.storage.from("samples").upload(path, file, { contentType: file.type });
       if (storageErr) throw storageErr;
       const { error: dbErr } = await supabase.from("samples").insert({
-        user_id: user.id,
+        user_id: userId,
         name: file.name.replace(/\.[^.]+$/, ""),
         storage_path: path,
         file_size: file.size,

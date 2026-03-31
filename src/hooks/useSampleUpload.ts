@@ -21,11 +21,11 @@ export function useSampleUpload() {
     setProgress(0);
 
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) { setUploading(false); throw new Error("LOGIN_REQUIRED"); }
+    const userId = user?.id ?? "anonymous";
 
     const ext = file.name.split(".").pop();
     const fileName = `${crypto.randomUUID()}.${ext}`;
-    const storagePath = `${user.id}/${fileName}`;
+    const storagePath = `${userId}/${fileName}`;
 
     const { error: uploadError } = await supabase.storage
       .from("samples")
@@ -39,7 +39,7 @@ export function useSampleUpload() {
 
     // Save metadata to samples table
     const { error: dbError } = await supabase.from("samples").insert({
-      user_id: user.id,
+      user_id: userId,
       name: file.name.replace(/\.[^.]+$/, ""), // name without extension
       storage_path: storagePath,
       file_size: file.size,
