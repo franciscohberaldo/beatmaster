@@ -16,7 +16,7 @@ export function useSampleUpload() {
   const supabase = createClient();
 
   const upload = useCallback(async (file: File, padId: PadId): Promise<UploadResult> => {
-    if (!supabase) throw new Error("Supabase not configured. Add credentials to .env.local");
+    if (!supabase) { setUploading(false); throw new Error("Login necessário para fazer upload de samples."); }
     setUploading(true);
     setProgress(0);
 

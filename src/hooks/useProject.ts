@@ -24,7 +24,7 @@ export function useProject() {
   const supabase = createClient();
 
   const listProjects = useCallback(async (): Promise<ProjectSummary[]> => {
-    if (!supabase) throw new Error("Supabase not configured");
+    if (!supabase) return [];
     const { data, error } = await supabase
       .from("projects")
       .select("id, name, bpm, updated_at")
@@ -39,7 +39,7 @@ export function useProject() {
   }, [supabase]);
 
   const fetchProject = useCallback(async (id: string): Promise<Project> => {
-    if (!supabase) throw new Error("Supabase not configured");
+    if (!supabase) throw new Error("Login necessário para carregar projeto.");
     const { data, error } = await supabase
       .from("projects")
       .select("*")
@@ -52,7 +52,7 @@ export function useProject() {
   }, [supabase, loadProject]);
 
   const saveProject = useCallback(async (): Promise<void> => {
-    if (!supabase) throw new Error("Supabase not configured. Add credentials to .env.local");
+    if (!supabase) throw new Error("Login necessário para salvar projeto.");
     if (!currentProject) return;
     markSaving(true);
     const payload = {
@@ -70,7 +70,7 @@ export function useProject() {
   }, [currentProject, supabase, markSaving, markSaved]);
 
   const deleteProject = useCallback(async (id: string): Promise<void> => {
-    if (!supabase) throw new Error("Supabase not configured");
+    if (!supabase) throw new Error("Login necessário para excluir projeto.");
     const { error } = await supabase.from("projects").delete().eq("id", id);
     if (error) throw error;
   }, [supabase]);
